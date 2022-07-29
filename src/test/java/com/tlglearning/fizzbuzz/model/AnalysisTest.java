@@ -1,8 +1,6 @@
 package com.tlglearning.fizzbuzz.model;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -14,40 +12,54 @@ import org.junit.jupiter.params.provider.ValueSource;
 class AnalysisTest {
 
   static final Set<State> fizzExpected = EnumSet.of(State.FIZZ);
+  static final Set<State> fizzBuzzExpected = EnumSet.of(State.BUZZ, State.FIZZ);
   static final Set<State> buzzExpected = EnumSet.of(State.BUZZ);
-  static final Set<State> fizzBuzzExpected = EnumSet.of(State.FIZZ, State.BUZZ);
-  static final Set<State> neitherExpected = EnumSet.noneOf(State.class); //set.of() immutable
+  static final Set<State> neitherExpected = EnumSet.noneOf(State.class); // Set.of()
 
-  final Analysis analysis = new Analysis(); //makes it so all tests use this before each test
+  final Analysis analysis = new Analysis();
 
-  @ParameterizedTest //use parameter test whenever testing more than 1 thing.
-  @ValueSource(ints = {3, 21, 999_999_999}) //tests all values of 3 between these numbers
+  @ParameterizedTest
+  @ValueSource(ints = {3, 21, 999_999_999})
   void analyze_fizz(int value) {
-    assertEquals(fizzExpected, analysis.analyze(value)); //tests that the result is equal to value of 3
+    assertEquals(fizzExpected, analysis.analyze(value));
   }
 
   @ParameterizedTest
-  @ValueSource(ints = {5, 10, 100_000_000}) //tests all values of 5 between these numbers
-  void analyze_buzz(int value) {
-    assertEquals(buzzExpected, analysis.analyze(value)); //tests that the result is equal to value of 5
-  }
-
-  @ParameterizedTest
-  @ValueSource(ints = {0, 15, 999_999_990}) //tests all values of 3 between these numbers
+  @ValueSource(ints = {0, 15, 999_999_990})
   void analyze_fizzBuzz(int value) {
-        assertEquals(fizzBuzzExpected, analysis.analyze(value)); //tests that the result is equal to value of 3
+    assertEquals(fizzBuzzExpected, analysis.analyze(value));
   }
 
   @ParameterizedTest
-  @CsvFileSource(resources = "neither.csv", numLinesToSkip = 1) //tests all values of 3 between these numbers
+  @ValueSource(ints = {5, 85, 999_999_985})
+  void analyze_buzz(int value) {
+    assertEquals(buzzExpected, analysis.analyze(value));
+  }
+
+  @ParameterizedTest
+  @CsvFileSource(resources = "neither.csv", numLinesToSkip = 1)
   void analyze_neither(int value) {
-    assertEquals(neitherExpected, analysis.analyze(value)); //tests that the result is equal to value of 3
+    assertEquals(neitherExpected, analysis.analyze(value));
   }
 
   @ParameterizedTest
   @ValueSource(ints = {-1, -3, -5, -15})
   void analyze_negative(int value) {
-    assertThrows(IllegalArgumentException.class, new InvalidInvocation(analysis, value));
+    assertThrows(IllegalArgumentException.class, new InvalidInvocation(value));
   }
 
+  class InvalidInvocation implements Executable {
+
+    private final int value;
+
+    public InvalidInvocation(int value) {
+      this.value = value;
+    }
+
+    @Override
+    public void execute() throws Throwable {
+      analysis.analyze(value);
+    }
+
+  }
 }
